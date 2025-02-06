@@ -24,6 +24,7 @@ const handleErrors = (err: any) => {
     }
     return errors;
 };
+
 export const signup = async (user: userBody) => {
     try {
         const newUser = await User.create(user);
@@ -47,7 +48,6 @@ export const getAllUsers = async () => {
         return { success: true, data: allUsers };
     } catch (err: any) {
         const errors: any = handleErrors(err);
-        console.log(errors);
         throw new Error(errors);
     }
 };

@@ -32,8 +32,8 @@ service.register(fastifyCookie, {
 });
 
 service.register(fastifyCors, {
-    // CORE OPTIONS
-    origin: ["http://localhost:3000"],
+    // CORS OPTIONS
+    origin: "http://localhost:3000",
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
     exposedHeaders: ["Content-Range", "X-Content-Range"],

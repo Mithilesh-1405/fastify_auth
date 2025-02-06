@@ -1,7 +1,12 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
+import Cookies from 'js-cookie'
+import { useNavigate } from 'react-router-dom';
+
 
 function Homepage() {
+    const [accessToken, setToken] = useState('');
+    const navigate = useNavigate();
     const [form, setForm] = useState({
         email: '',
         password: ''
@@ -18,10 +23,11 @@ function Homepage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://127.0.0.1:9666/users/login', form, {
+            const response = await axios.post('http://localhost:9666/users/login', form, {
                 withCredentials: true
             })
-            console.log(response)
+            setToken(response.data.accessToken)
+            navigate('/protected')
         }
         catch (err) {
             console.log(err)
@@ -31,6 +37,7 @@ function Homepage() {
             console.log("In finally block")
         }
     }
+    axios.interceptors.request.use()
     return (
         <div>
             <form onSubmit={handleSubmit}>

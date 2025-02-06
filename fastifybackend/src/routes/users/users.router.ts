@@ -41,13 +41,21 @@ async function userRoutes(server: FastifyInstance) {
             try {
                 const user = await loginUser({ email, password });
 
-                // ! if sameSite None, we need to have secure: true
+                //! if sameSite: none, we need to have secure: true
+                //! Also make sure domain is same for both, localhost and not 127.0.0.1
                 reply.setCookie("refreshToken", user.refreshToken, {
                     path: "/",
-                    httpOnly: true,
                     secure: true,
                     sameSite: "none",
-                    maxAge: 24 * 60 * 60 * 1000,
+                    maxAge: 30000,
+                    domain: "localhost",
+                });
+                reply.setCookie("accessToken", user.accessToken, {
+                    path: "/",
+                    secure: true,
+                    sameSite: "none",
+                    maxAge: 900,
+                    domain: "localhost",
                 });
                 return reply.status(200).send(user);
             } catch (err: any) {
