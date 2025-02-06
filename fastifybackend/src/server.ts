@@ -7,7 +7,8 @@ import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
 import connectToDb from "./configs/db";
 import fastify from "fastify";
-import fastifyCookie from '@fastify/cookie'
+import fastifyCookie from "@fastify/cookie";
+import fastifyCors from "@fastify/cors";
 
 const service = fastify({
     logger: {
@@ -22,19 +23,22 @@ declare module "fastify" {
         connectToDb(): Promise<string>;
     }
 }
-
-service.register(require("@fastify/cors"), {
-    origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-});
-
 service.register(fastifyFormbody);
 service.register(swagger, swaggerConfig);
 service.register(swaggerUi, { routePrefix: "/docs" });
 service.register(fastifyCookie, {
     secret: "my-secret",
-    hook: 'onRequest',
-  })
+    hook: "onRequest",
+});
+
+service.register(fastifyCors, {
+    // CORE OPTIONS
+    origin: ["http://localhost:3000"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+    exposedHeaders: ["Content-Range", "X-Content-Range"],
+    credentials: true,
+});
 
 // Endpoint routers
 service.decorate("connectToDb", connectToDb);

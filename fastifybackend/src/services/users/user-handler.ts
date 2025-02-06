@@ -53,24 +53,20 @@ export const getAllUsers = async () => {
 };
 
 export const loginUser = async ({ email, password }: LoginCredentials) => {
-    try {
-        const registeredUser = await User.findOne({ email });
-        if (registeredUser) {
-            const isPasswordMatch = await bcrypt.compare(password, registeredUser.password);
-            if (isPasswordMatch) {
-                const accessToken = createJWT(registeredUser._id, "access");
-                const refreshToken = createJWT(registeredUser._id, "refresh");
-                return {
-                    success: true,
-                    data: registeredUser,
-                    accessToken: accessToken,
-                    refreshToken: refreshToken,
-                };
-            }
-            throw new Error("Invalid credentials");
-        }
-        throw new Error("User is not registered, Please Signup");
-    } catch (err: any) {
-        return { success: false, data: err.message };
+    const registeredUser = await User.findOne({ email });
+    if (!registeredUser) {
+        throw new Error("User is not registered, please signin");
     }
+
+    const isPasswordMatch = await bcrypt.compare(password, registeredUser.password);
+    if (!isPasswordMatch) {
+        throw new Error("Invalid credentials");
+    }
+    const accessToken = createJWT(registeredUser._id, "access");
+    const refreshToken = createJWT(registeredUser._id, "refresh");
+    return {
+        success: true,
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+    };
 };

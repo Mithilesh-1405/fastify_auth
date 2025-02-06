@@ -22,9 +22,8 @@ export async function authMiddleware(request: any, reply: any) {
             });
         };
         try {
-
             // verify accesstoken
-            const decodedAccessToken = await verifyAccessToken();
+            const decodedAccessToken = (await verifyAccessToken()) as { _id: string };
             request.user = decodedAccessToken._id;
         } catch (accessTokenError) {
             const refreshToken = request.cookies.refreshToken;
@@ -44,9 +43,8 @@ export async function authMiddleware(request: any, reply: any) {
                 });
             };
             try {
-
                 // AccessToken not valid, generate new access token
-                const decodedRefreshToken = await verifyRefreshToken();
+                const decodedRefreshToken = (await verifyRefreshToken()) as { _id: string };
                 const newAccessToken = createJWT(decodedRefreshToken._id, "access");
                 reply.header("Authorization", `Bearer ${newAccessToken}`);
                 request.user = newAccessToken._id;

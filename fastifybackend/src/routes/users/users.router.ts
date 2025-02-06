@@ -7,7 +7,6 @@ import { authMiddleware } from "../../middlewares/authMiddleware";
 
 // This is a plugin that will be used to register the routes
 async function userRoutes(server: FastifyInstance) {
-
     // Get all users
     server.get("/", async (request, reply) => {
         try {
@@ -41,15 +40,18 @@ async function userRoutes(server: FastifyInstance) {
             const { email, password } = request.body;
             try {
                 const user = await loginUser({ email, password });
-                reply.setCookie('refreshToken', user.refreshToken , {
-                    path: '/',
-                    secure: true,
+
+                // ! if sameSite None, we need to have secure: true
+                reply.setCookie("refreshToken", user.refreshToken, {
+                    path: "/",
                     httpOnly: true,
-                    maxAge: 86400
-                  })
-                reply.status(201).send(user);
+                    secure: true,
+                    sameSite: "none",
+                    maxAge: 24 * 60 * 60 * 1000,
+                });
+                return reply.status(200).send(user);
             } catch (err: any) {
-                reply.status(500).send({ message: err.message });
+                return reply.status(500).send({ message: err.message });
             }
         }
     );
