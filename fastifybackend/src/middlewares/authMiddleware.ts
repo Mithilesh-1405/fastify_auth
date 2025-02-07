@@ -1,13 +1,12 @@
 import { createJWT } from "../configs/createjwt";
+import { getISTTimestamp } from "../server";
 
 const jwt = require("jsonwebtoken");
 
-export async function authMiddleware(request: any, reply: any) {
+export async function authMiddleware(request: any, reply: any, done: any) {
     const authHeader = request.headers.authorization || request.headers.Authorization;
     const token = authHeader && authHeader.split(" ")[1];
-    if (!token) {
-        reply.status(404).send({ success: true, message: "No token found, Please Login" });
-    }
+    console.log(token);
     try {
         const verifyAccessToken = () => {
             return new Promise((resolve, reject) => {
@@ -24,10 +23,13 @@ export async function authMiddleware(request: any, reply: any) {
         try {
             // verify accesstoken
             const decodedAccessToken = (await verifyAccessToken()) as { _id: string };
+            request.log.info({
+                data: `AccessToken verified - ${decodedAccessToken._id}`,
+                timestamp: getISTTimestamp(),
+            });
             request.user = decodedAccessToken._id;
         } catch (accessTokenError) {
             const refreshToken = request.cookies.refreshToken;
-            console.log("refresh-", refreshToken);
             if (!refreshToken) {
                 return reply.status(404).send({ success: true, message: "No refresh token found" });
             }
@@ -46,9 +48,12 @@ export async function authMiddleware(request: any, reply: any) {
             try {
                 // AccessToken not valid, generate new access token
                 const decodedRefreshToken = (await verifyRefreshToken()) as { _id: string };
+                request.log.info({ data: "Verifying refresh token", timeStamp: getISTTimestamp() });
                 const newAccessToken = createJWT(decodedRefreshToken._id, "access");
+                request.log.info({ data: `New access token - ${newAccessToken}` });
                 reply.header("Authorization", `Bearer ${newAccessToken}`);
-                request.user = newAccessToken._id;
+                request.user = newAccessToken;
+                console.log(request.user);
             } catch (err) {
                 return reply.status(401).send({
                     success: false,

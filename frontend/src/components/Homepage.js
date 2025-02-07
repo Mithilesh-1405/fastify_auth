@@ -37,7 +37,6 @@ function Homepage() {
             console.log("In finally block")
         }
     }
-    axios.interceptors.request.use()
     return (
         <div>
             <form onSubmit={handleSubmit}>

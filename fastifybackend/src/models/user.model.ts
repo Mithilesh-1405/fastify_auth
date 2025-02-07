@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema(
             type: String,
             required: [true, "Password is required"],
             validate: [
-                (val: String) => val.length >= 6,
+                (val: String) => val.length >= 2,
                 "Password should have a minimum length of 6 characters",
             ],
         },

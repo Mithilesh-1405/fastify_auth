@@ -54,7 +54,7 @@ async function userRoutes(server: FastifyInstance) {
                     path: "/",
                     secure: true,
                     sameSite: "none",
-                    maxAge: 900,
+                    maxAge: 60,
                     domain: "localhost",
                 });
                 return reply.status(200).send(user);
@@ -65,11 +65,23 @@ async function userRoutes(server: FastifyInstance) {
     );
 
     // Private route
-    server.get("/private", { preHandler: authMiddleware }, async (request, reply) => {
-        console.log("You are in the protected route");
-        return reply
-            .status(200)
-            .send({ success: true, message: "You successfully entered private route" });
+    server.get("/private", { preHandler: authMiddleware }, async (request: any, reply) => {
+        try {
+            reply.setCookie("accessToken", request.user, {
+                path: "/",
+                secure: true,
+                sameSite: "none",
+                maxAge: 60,
+                domain: "localhost",
+            });
+            return reply
+                .status(200)
+                .send({ success: true, message: "You successfully entered private route" });
+        } catch (err) {
+            return reply
+                .status(401)
+                .send({ success: false, message: "You are not allowed to enter this route" });
+        }
     });
 }
 export default userRoutes;

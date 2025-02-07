@@ -6,7 +6,6 @@ import axios from 'axios';
 function Content() {
     const navigate = useNavigate();
     const privateRoute = async () => {
-        const refreshToken = Cookies.get('refreshToken');
         try {
             const response = await axios.get('http://localhost:9666/users/private', {
                 withCredentials: true
@@ -15,12 +14,15 @@ function Content() {
 
         }
         catch (err) {
-            console.log(err);
+            console.log("from catch of private", err);
+            navigate('/')
         }
     }
     useEffect(() => {
+
         const accessToken = Cookies.get('accessToken');
         if (!accessToken) {
+            console.log("Calling the privateRoute")
             privateRoute()
         }
     }, [])
